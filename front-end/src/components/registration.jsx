@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Form, ButtonGroup, Button, Modal } from 'react-bootstrap';
+import { Form, ButtonGroup, Button } from 'react-bootstrap';
 import axios from "axios";
+import { message } from 'antd';
 
 export default class Registration extends Component {
 
@@ -8,28 +9,40 @@ export default class Registration extends Component {
         email: "",
         password: "",
         role: "",
-        name: ""
+        name: "",
+        validationFail: false
     }
 
     submit = e => {
         e.preventDefault();
         console.log(this.state);
         axios
-            .post('http://localhost:4000/api/users', {
+            .post('http://localhost:4000/api/register', {
                 email: this.state.email,
                 password: this.state.password,
                 role: this.state.role,
                 name: this.state.name
             }).then(res => {
-                console.log(res);
+                console.log(this.state);
+                this.setState({
+                    validationFail: false
+                })
+                message.success('User successfully registered', 7);
+
             }).catch((error) => {
                 if (error.response.status === 409) {
                     this.setState({
-                        show: true
+                        validationFail: false
+                    })
+                    message.error('This email is already in use', 7);
+                }
+                if (error.response.status === 418) {
+                    this.setState({
+                        validationFail: true
                     })
                 }
             })
-    }
+    }    
 
     onChange = (e) => {
         this.setState({ [e.target.name]: e.target.value });
@@ -53,17 +66,6 @@ export default class Registration extends Component {
     render() {
         return (
             <div>
-                <Modal show={this.state.show} onHide={this.handleClose}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Error while registering</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>This email is already in use</Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="primary" onClick={this.handleClose}>
-                            OK
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
                 <Form onSubmit={this.submit}>
                     <Form.Group controlId="formBasicName">
                         <Form.Label>Full Name</Form.Label>
@@ -90,9 +92,10 @@ export default class Registration extends Component {
                             <Button variant="primary" onClick={this.setRole} value="developer">Developer</Button>
                         </ButtonGroup>
                     </div>
-                    <Button variant="primary" type="submit">
+                    <Button style={{margin: "1rem"}} variant="primary" type="submit">
                         Submit
-            </Button>
+                    </Button>
+                    {this.state.validationFail && <p style={{ color: "red", backgroundColor: "#ffe6e6" }}>Please fill in all fileds and select role as reqiured</p>}
                 </Form>
             </div>
         )

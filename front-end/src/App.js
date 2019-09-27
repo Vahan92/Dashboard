@@ -6,6 +6,8 @@ import Login from './components/login';
 import Panel from './components/panel';
 import Users from './components/panel_components/users';
 
+import Routes from './Routes';
+
 
 function App() {
   return (
@@ -13,7 +15,8 @@ function App() {
       {/* <Registration/> */}
       {/* <Login/> */}
       {/* <Panel/> */}
-      <Users/>
+      {/* <Users/> */}
+      <Routes/>
     </div>
   );
 }

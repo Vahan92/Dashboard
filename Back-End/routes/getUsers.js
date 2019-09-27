@@ -7,7 +7,6 @@ router.get('/', async (req, res) => {
     console.log(`User`, User)
     const usersProjection = {
         password: false,
-        _id: false,
         __v: false
     };
     User.find({}, usersProjection, function(err, Users){

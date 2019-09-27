@@ -2,6 +2,7 @@ import React, { useState, useReducer } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import axios from "axios";
 import setAuthToken from './utils/setAuthorizationToken';
+import jwt from 'jwt-decode';
 
 function Login() {
     const [error, setError] = useState(false);
@@ -28,6 +29,7 @@ function Login() {
             }).then(res => {
                 setError(false);
                 console.log('res', res);
+                console.log('jwt decoded', jwt(res.data));
                 localStorage.setItem("jwt", res.data)
                 setAuthToken(res.data);
             }).catch((error) => {
@@ -54,7 +56,7 @@ function Login() {
                 </Form.Group>
                 <Button variant="primary" type="submit" onClick={submit}>
                     Submit
-                </Button>
+        </Button>
             </Form>
         </div>
     )

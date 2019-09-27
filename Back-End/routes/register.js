@@ -9,7 +9,7 @@ router.post('/', async (req, res) => {
     // First Validate The Request
     const { error } = validate(req.body);
     if (error) {
-        return res.status(400).send(error.details[0].message);
+        return res.status(418).send(error.details[0].message);
     }
  
     // Check if this user already exisits

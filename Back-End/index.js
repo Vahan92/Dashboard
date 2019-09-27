@@ -2,12 +2,15 @@
 const Joi = require('joi');
 Joi.objectId = require('joi-objectid')(Joi);
 const mongoose = require('mongoose');
-const users = require('./routes/users');
+const register = require('./routes/register');
 const getUsers = require('./routes/getUsers');
+const getUser = require('./routes/getUser');
+const deleteUser = require('./routes/deleteUser');
+const updateUser = require('./routes/updateUser');
+const addReport = require('./routes/addReport');
 const express = require('express');
 const app = express();
 const auth = require('./routes/auth');
-const ticket_booking = require('./routes/ticket_booking');
 const cors = require('cors');
 
 // if (!config.get('PrivateKey')) {
@@ -21,10 +24,13 @@ mongoose.connect('mongodb://localhost/dashboard')
 
 app.use(cors());
 app.use(express.json());
-app.use('/api/users', users);
+app.use('/api/register', register);
 app.use('/api/getUsers', getUsers);
+app.use('/api/getUser', getUser);
+app.use('/api/deleteUser', deleteUser);
+app.use('/api/updateUser', updateUser);
 app.use('/api/auth', auth);
-app.use('/api/ticket_booking', ticket_booking);
+app.use('/api/addReport', addReport);
 
 const port = process.env.PORT || 4000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
