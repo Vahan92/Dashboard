@@ -1,6 +1,6 @@
 const Joi = require('joi');
 const mongoose = require('mongoose');
- 
+
 const User = mongoose.model('User', new mongoose.Schema({
     name: {
         type: String,
@@ -26,8 +26,24 @@ const User = mongoose.model('User', new mongoose.Schema({
         required: true,
         enum: ["admin", "pm", "developer"]
     },
+    reports: {
+        type: Array
+    }
 }));
- 
+
+function validateReport(req) {
+    const schema = {
+        name: Joi.string().min(3).max(255).required(),
+        description: Joi.string().min(10).max(255).required(),
+        estimation: Joi.string().min(1).required(),
+        spent: Joi.string().min(1).required(),
+        id: Joi.string().min(10),
+        status: Joi.string()
+    };
+
+    return Joi.validate(req, schema);
+}
+
 function validateUser(user) {
     const schema = {
         name: Joi.string().min(3).max(50).required(),
@@ -37,6 +53,7 @@ function validateUser(user) {
     };
     return Joi.validate(user, schema);
 }
- 
+
 exports.User = User;
-exports.validate = validateUser;
+exports.validateUser = validateUser;
+exports.validateReport = validateReport;

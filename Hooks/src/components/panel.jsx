@@ -1,10 +1,15 @@
 import React from 'react';
-import { Tab, Row, Col, Nav } from 'react-bootstrap';
+import { Tab, Row, Col, Nav, Button } from 'react-bootstrap';
 import jwt from 'jwt-decode';
 
 import Users from './panel_components/users';
+import AddReports from './panel_components/reports';
 
 function panel() {
+    const logout = () => {
+        localStorage.clear();
+        window.location.pathname = '/';
+    }
     const userRole = jwt(localStorage.getItem("jwt"))["role"];
     return (
         <Tab.Container id="left-tabs-example" defaultActiveKey="first">
@@ -15,7 +20,7 @@ function panel() {
                             {userRole === "admin" && <Nav.Link eventKey="users">Users</Nav.Link>}
                         </Nav.Item>
                         <Nav.Item>
-                            <Nav.Link eventKey="second">Tab 2</Nav.Link>
+                            <Nav.Link eventKey="reports">Reports</Nav.Link>
                         </Nav.Item>
                     </Nav>
                 </Col>
@@ -24,12 +29,15 @@ function panel() {
                         <Tab.Pane eventKey="users">
                             <Users />
                         </Tab.Pane>
-                        <Tab.Pane eventKey="second">
-                            <h3>Gago</h3>
+                        <Tab.Pane eventKey="reports">
+                            <AddReports />
                         </Tab.Pane>
                     </Tab.Content>
                 </Col>
             </Row>
+            <div>
+                <Button style={{textAlign: "right"}} onClick={logout}>Logout</Button>
+            </div>
         </Tab.Container>
     )
 }

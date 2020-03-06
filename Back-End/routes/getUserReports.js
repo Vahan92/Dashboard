@@ -4,17 +4,13 @@ const express = require('express');
 const router = express.Router();
  
 router.get('/:_id', async (req, res) => {
-    console.log(`(req.params ----- `, req.params);
-    const usersProjection = {
-        password: false,
-        reports: false,
-        __v: false
-    };
-    let user = await User.findById(req.params._id, usersProjection);
+    console.log(`(req.params ----- `, req.params);    
+    let user = await User.findById(req.params._id);
     if (!user) {
         return res.status(404).send('There is no such a user');
     }
-    return res.status(200).send(user);
+    // user.reports.userId = user.id;
+    return res.status(200).send(user.reports);
 });
  
 module.exports = router;

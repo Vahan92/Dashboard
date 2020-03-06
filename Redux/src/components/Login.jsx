@@ -1,11 +1,10 @@
-import React, { useState, useReducer } from 'react';
+import React, { useReducer } from 'react';
 import { Form, Button } from 'react-bootstrap';
-import axios from "axios";
-import setAuthToken from './utils/setAuthorizationToken';
-import jwt from 'jwt-decode';
+import { useDispatch, useSelector } from "react-redux";
+import { login } from '../actions/PostActions';
+import PropTypes from 'prop-types';
 
 function Login() {
-    const [error, setError] = useState(false);
     const [userInput, setUserInput] = useReducer(
         (state, newState) => ({ ...state, ...newState }),
         {
@@ -13,6 +12,10 @@ function Login() {
             password: ''
         }
     );
+
+    const dispatch = useDispatch();
+    const result = useSelector(state => state);
+
     const onChange = evt => {
         const name = evt.target.name;
         const newValue = evt.target.value;
@@ -22,28 +25,15 @@ function Login() {
     const submit = e => {
         e.preventDefault();
         console.log(userInput);
-        axios
-            .post('http://localhost:4000/api/auth', {
-                email: userInput.email,
-                password: userInput.password
-            }).then(res => {
-                setError(false);
-                console.log('res', res);
-                console.log('jwt decoded', jwt(res.data));
-                localStorage.setItem("jwt", res.data)
-                setAuthToken(res.data);
-            }).catch((error) => {
-                if (error.response.status >= 400) {
-                    setError(true);
-                }
-            })
+        dispatch(login(userInput));
+        console.log(`this.result `, result.loginReducer);
     }
 
     return (
         <div>
             <Form>
                 <Form.Group controlId="formBasicEmail">
-                    {error && <p style={{ color: "red" }}>Invalid Password or Email</p>}
+                    {result.loginReducer.loggedIn && <p style={{ color: "red" }}>Invalid Password or Email</p>}
                     <Form.Label>Email address</Form.Label>
                     <Form.Control onChange={onChange} type="email" name="email" placeholder="Enter email" />
                     <Form.Text className="text-muted">
@@ -61,5 +51,9 @@ function Login() {
         </div>
     )
 }
+
+Login.propTypes = {
+    login: PropTypes.func
+};
 
 export default Login;

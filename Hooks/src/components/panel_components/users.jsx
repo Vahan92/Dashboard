@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useReducer } from 'react';
-import { Form, Row, Col, Table, Button, Modal } from 'react-bootstrap';
+import { Form, Table, Button, Modal } from 'react-bootstrap';
 import Registration from '../registration';
 import { Icon, Popconfirm, message } from 'antd';
 import axios from 'axios';
@@ -9,7 +9,7 @@ function Users() {
     const [user, setUser] = useState({});
     const [loading, setLoading] = useState(true);
     const [registering, setRegistration] = useState(false);
-    const [modalShow, setModalShow] = React.useState(false);
+    const [modalShow, setModalShow] = useState(false);
     const [userInput, setUserInput] = useReducer(
         (state, newState) => ({ ...state, ...newState }),
         {
@@ -163,7 +163,7 @@ function Users() {
                             <Form.Group key={el}>
                                 <Form.Label>
                                     {el} :
-                  </Form.Label>
+                            </Form.Label>
                                 <Form.Control onChange={onChange} defaultValue={user[el]} type={el === "email" ? "email" : "text"} name={el} />
                             </Form.Group>
                         ))}
