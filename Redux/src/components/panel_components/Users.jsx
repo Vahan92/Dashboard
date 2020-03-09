@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Form, Table, Button, Modal } from 'react-bootstrap';
 import RegisterUser from '../RegisterUser';
 import { Icon, Popconfirm } from 'antd';
-import { fetchUsers, confirm, edit, saveEdit } from '../../actions/UserActions';
+import { fetchUsers, confirm, saveEdit } from '../../actions/UserActions';
 import { saveChanges, fetchOverviewReports } from '../../actions/ReportActions';
 
 function Users() {
@@ -24,8 +24,6 @@ function Users() {
     margin: "1rem 0",
     fontWeight: "bold"
   }
-
-  console.log(`results `, results);
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -49,25 +47,27 @@ function Users() {
   const onChange = evt => {
     const name = evt.target.name;
     const newValue = evt.target.value;
-    setUserInput({ [name]: newValue });
+    setUserInput({ ...userInput, [name]: newValue });
   }
 
   const saveReportChanges = () => {
     delete userInput['password'];
-    delete userInput['_id'];
-    dispatch(saveEdit(results.usersReducer.user, userInput));
+    dispatch(saveEdit(userInput));
   }
 
   const approveReport = (report, reports, userId) => {
     report.status = "Approved";
-    console.log(report, userId);
     dispatch(saveChanges(report, reports, userId));
   }
 
   const denyReport = (report, reports, userId) => {
     report.status = "Denided";
-    console.log(report, userId);
     dispatch(saveChanges(report, reports, userId));
+  }
+
+  const edit = user => {
+    setUserInput(user);
+    dispatch({type: "EDIT_USER"});
   }
 
   return (
@@ -98,13 +98,12 @@ function Users() {
                           title="Are you sure you want to delete this user?"
                           placement="left"
                           onConfirm={() => dispatch(confirm(el.email))}
-                          // onCancel={cancel}
                           okText="Yes"
                           cancelText="No"
                         >
                           <Icon type="delete" style={{ color: 'red', marginRight: "0.5rem" }} />
                         </Popconfirm>
-                        <Icon type="edit" style={{ color: "#e6e600" }} onClick={() => dispatch(edit(el._id))} />
+                        <Icon type="edit" style={{ color: "#e6e600" }} onClick={() => edit(el)} />
                       </td>
                     </tr>
                   ))}
@@ -131,12 +130,12 @@ function Users() {
         </Modal.Header>
         <Modal.Body>
           <Form style={{ width: "100%", padding: "0 0.5rem" }}>
-            {Object.keys(results.usersReducer.user).filter(val => val !== "_id").map(el => (
+            {Object.keys(userInput).filter(val => val !== "_id" && val !== "password").map(el => (
               <Form.Group key={el}>
                 <Form.Label>
                   {el} :
                 </Form.Label>
-                <Form.Control onChange={onChange} defaultValue={results.usersReducer.user[el]} type={el === "email" ? "email" : "text"} name={el} />
+                <Form.Control onChange={onChange} defaultValue={userInput[el]} type={el === "email" ? "email" : "text"} name={el} />
               </Form.Group>
             ))}
             <div style={{ textAlign: "right" }}>

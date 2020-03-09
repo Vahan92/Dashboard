@@ -23,6 +23,7 @@ function validate(req) {
     const schema = {
         name: Joi.string().min(3).max(255),
         email: Joi.string().min(5).max(255).email(),
+        _id: Joi.string(),
         role: Joi.string().valid("admin", "pm", "developer")
     };
 

@@ -29,23 +29,8 @@ export const confirm = (email) => dispatch => {
     })
 }
 
-export const edit = (id) => dispatch => {
-  axios.get(`http://localhost:4000/api/getUser/${id}`, {
-  })
-    .then(function (response) {
-      dispatch({
-        type: EDIT_USER,
-        payload: response.data
-      })      
-      console.log(`response ----`, response);      
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-}
-
-export const saveEdit = (user, userInput) => dispatch => {
-axios.patch(`http://localhost:4000/api/updateUser/${user["_id"]}`, userInput)
+export const saveEdit = (user) => dispatch => {
+axios.patch(`http://localhost:4000/api/updateUser/${user["_id"]}`, user)
       .then(function (response) {
         message.success('User information successfully updated', 7);
         dispatch(fetchUsers());

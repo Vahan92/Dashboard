@@ -19,7 +19,7 @@ export default function(state = initialState, action) {
       // console.log(`action.payload `, action.payload);
       return {
         ...state,
-        user: action.payload,
+        // user: action.payload,
         modalShow: true
       };
       case CLOSE_MODAL:

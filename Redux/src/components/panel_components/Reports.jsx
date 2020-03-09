@@ -18,7 +18,6 @@ function AddReports() {
     const name = evt.target.name;
     const newValue = evt.target.value;
     setReport({ ...report, [name]: newValue });
-    console.log(`report ---`, report)
   }
 
   const edit = (reportId) => {
@@ -87,7 +86,7 @@ function AddReports() {
         </Modal.Header>
         <Modal.Body>
           <Form style={{ width: "100%", padding: "0 0.5rem" }}>
-            {Object.keys(report).filter(value => value !== "id").map(el => (
+            {Object.keys(report).filter(value => value !== "id" && value !=="status").map(el => (
               <Form.Group key={el}>
                 <Form.Label>
                   {el} :
