@@ -4,7 +4,7 @@ import jwt from 'jwt-decode';
 
 import Users from './panel_components/Users';
 import AddReports from './panel_components/Reports';
-// import ReportsOverview from './panel_components/ReportsOverview';
+import Chat from './Chat';
 
 function panel() {
   const logout = () => {
@@ -18,10 +18,10 @@ function panel() {
         <Col sm={3}>
           <Nav variant="pills" className="flex-column">
             <Nav.Item>
-              {userRole === "admin" && <Nav.Link eventKey="users">Users</Nav.Link>}
+              {userRole === "developer" ? <Nav.Link eventKey="reports">Reports</Nav.Link> : <Nav.Link eventKey="users">Users</Nav.Link>}
             </Nav.Item>
             <Nav.Item>
-              {userRole === "developer" && <Nav.Link eventKey="reports">Reports</Nav.Link>}
+              <Nav.Link eventKey="chat">Chat</Nav.Link>
             </Nav.Item>
           </Nav>
         </Col>
@@ -33,11 +33,14 @@ function panel() {
             <Tab.Pane eventKey="reports">
               <AddReports />
             </Tab.Pane>
+            <Tab.Pane eventKey="chat">
+              <Chat />
+            </Tab.Pane>
           </Tab.Content>
         </Col>
       </Row>
-      <div>
-        <Button style={{ textAlign: "right" }} onClick={logout}>Logout</Button>
+      <div style={{ textAlign: "right" }}>
+        <Button onClick={logout}>Logout</Button>
       </div>
     </Tab.Container>
   )

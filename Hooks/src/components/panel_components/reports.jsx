@@ -24,18 +24,14 @@ function AddReports() {
     const name = evt.target.name;
     const newValue = evt.target.value;
     setReport({ ...report, [name]: newValue });
-    console.log(`report ---`, report)
   }
 
   const saveChanges = () => {
-    console.log(report)
     if (report.id) {
-      console.log(`---------- inside if ---------`);
       axios.patch(`http://localhost:4000/api/updateReport/${userInfo["_id"]}`, report)
         .then(function (response) {
           message.success('User information successfully updated', 7);
           fetchUrl();
-          console.log(response);
         })
         .catch(function (error) {
           if (error.response.status === 404) {
@@ -44,10 +40,8 @@ function AddReports() {
           if (error.response.status === 400) {
             message.error(error.response.data, 7)
           }
-          console.log(`error ---- `, error.response.data);
         });
     } else {
-      console.log(`---------- outside if ---------`);
       for (let i = 0; i < reports.length; ++i) {
         if (reports[i].name === report.name) {
           message.error('Name of report should be unique', 7);
@@ -59,11 +53,9 @@ function AddReports() {
           message.success('Your report was successfully added', 7);
           setModalShow(false);
           fetchUrl();
-          console.log(response);
         })
         .catch(function (error) {
           message.error(error.response.data, 7);
-          console.log(`error ---- `, error.response.data);
         });
     }
   }
@@ -73,7 +65,6 @@ function AddReports() {
       .delete('http://localhost:4000/api/deleteUser', {
         data: { email: email }
       }).then(res => {
-        console.log('res', res);
         message.success('User successfully deleted', 7);
         fetchUrl();
       }).catch((error) => {
@@ -102,7 +93,6 @@ function AddReports() {
         if (error.response.status === 400) {
           message.error(error.response.data, 7)
         }
-        console.log(`error ---- `, error.response.data);
       });
   }
 
@@ -140,7 +130,6 @@ function AddReports() {
                     title="Are you sure you want to delete this user?"
                     placement="left"
                     onConfirm={() => deleteReport(el)}
-                    // onCancel={cancel}
                     okText="Yes"
                     cancelText="No"
                   >

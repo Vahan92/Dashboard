@@ -1,4 +1,4 @@
-import { FETCH_OVERVIEW_REPORTS, SUCCESS_EDIT_REPORT, CANCEL_EDIT_REPORT } from '../actions/types';
+import { FETCH_OVERVIEW_REPORTS } from '../actions/types';
 
 const initialState = {
   overview: [],

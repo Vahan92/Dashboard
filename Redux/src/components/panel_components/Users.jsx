@@ -3,12 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { Form, Table, Button, Modal } from 'react-bootstrap';
 import RegisterUser from '../RegisterUser';
 import { Icon, Popconfirm } from 'antd';
-import { fetchUsers, confirm, saveEdit } from '../../actions/UserActions';
-import { saveChanges, fetchOverviewReports } from '../../actions/ReportActions';
+import { fetchUsers, confirm, edit, saveEdit, deleteMany } from '../../actions/UserActions';
+import { saveChanges } from '../../actions/ReportActions'
+import { fetchOverviewReports } from '../../actions/OverviewReportsAction';
+import jwt from 'jwt-decode';
 
 function Users() {
   const [registering, setRegistration] = useState(false);
   const [reportsModal, showReportsModal] = useState(false);
+  const [deleteArray, setDeleteArray] = useState([]);
   const [userInput, setUserInput] = useReducer(
     (state, newState) => ({ ...state, ...newState }),
     {
@@ -17,13 +20,10 @@ function Users() {
     }
   );
 
+  const userInfo = localStorage.getItem("jwt") && jwt(localStorage.getItem("jwt"));
+
   const dispatch = useDispatch();
   const results = useSelector(state => state);
-
-  const margins = {
-    margin: "1rem 0",
-    fontWeight: "bold"
-  }
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -44,31 +44,55 @@ function Users() {
     dispatch(fetchUsers());
   }
 
+  const approveReport = (report, userId) => {
+    report.status = "Approved";
+    dispatch(saveChanges(report, results.reportsReducer.reports, userId));
+  }
+
+  const denyReport = (report, userId) => {
+    report.status = "Denied";
+    dispatch(saveChanges(report, results.reportsReducer.reports, userId));
+  }
+
   const onChange = evt => {
     const name = evt.target.name;
     const newValue = evt.target.value;
-    setUserInput({ ...userInput, [name]: newValue });
+    setUserInput({ [name]: newValue });
   }
 
-  const saveReportChanges = () => {
+  const saveChangedReport = e => {
+    e.preventDefault();
     delete userInput['password'];
-    dispatch(saveEdit(userInput));
+    delete userInput['_id'];
+    dispatch(saveEdit(results.usersReducer.user, userInput));
   }
 
-  const approveReport = (report, reports, userId) => {
-    report.status = "Approved";
-    dispatch(saveChanges(report, reports, userId));
-  }
-
-  const denyReport = (report, reports, userId) => {
-    report.status = "Denided";
-    dispatch(saveChanges(report, reports, userId));
-  }
-
-  const edit = user => {
+  const editUser = user => {
     setUserInput(user);
-    dispatch({type: "EDIT_USER"});
+    dispatch(edit(user._id))
   }
+
+  const selectToDelete = id => {
+    const index = deleteArray.indexOf(id);
+    if (index !== -1) {
+      setDeleteArray(deleteArray.filter(value => value !== id));
+    } else {
+      setDeleteArray(oldArray => [...oldArray, id]);
+    }
+  }
+
+  const deleteSelectedUsers = () => {
+    dispatch(deleteMany(deleteArray));
+    setDeleteArray([]);
+  }
+
+  const deleteUser = user => {
+    const index = deleteArray.indexOf(user._id);
+    if (index !== -1) setDeleteArray(deleteArray.filter(value => value !== user._id));
+    dispatch(confirm(user.email))
+  }
+
+  const addUser = !registering && userInfo.role === "admin";
 
   return (
     <>
@@ -76,46 +100,62 @@ function Users() {
         "Loading..."
       ) : registering ? (
         <RegisterUser />
-      ) : (
-            <>
-              <Table responsive>
-                <thead>
-                  <tr>
-                    {Object.keys(results.usersReducer.users[0]).filter(el => el !== "_id").map(el => (
-                      <th key={el}>{el}</th>
-                    ))}
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.usersReducer.users.map(el => (
-                    <tr key={el.email}>
-                      <td onClick={() => { userReports(el._id) }}>{el.name}</td>
-                      <td>{el.email}</td>
-                      <td>{el.role}</td>
-                      <td>
-                        <Popconfirm
-                          title="Are you sure you want to delete this user?"
-                          placement="left"
-                          onConfirm={() => dispatch(confirm(el.email))}
-                          okText="Yes"
-                          cancelText="No"
-                        >
-                          <Icon type="delete" style={{ color: 'red', marginRight: "0.5rem" }} />
-                        </Popconfirm>
-                        <Icon type="edit" style={{ color: "#e6e600" }} onClick={() => edit(el)} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-              <div>
-                <Button onClick={showRegistration} variant="outline-primary">Add User</Button>
-              </div>
-              <p style={margins}>Click on user name to see the reports</p>
-            </>
-          )}
+      ) : results.usersReducer.users.length ? (
+        <>
+          <Table responsive>
+            <thead>
+              <tr>
+                {Object.keys(results.usersReducer.users[0]).filter(el => el !== "_id").map(el => (
+                  <th key={el}>{el}</th>
+                ))}
+                {userInfo.role === "admin" && <>
+                  <th>Actions</th>
+                  <th>
+                    <Popconfirm
+                      title="Are you sure you want to delete selected cars?"
+                      placement="left"
+                      onConfirm={deleteSelectedUsers}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button disabled={deleteArray.length < 2} variant="outline-primary">Delete selected</Button>
+                    </Popconfirm>
+                  </th>
+                </>}
+              </tr>
+            </thead>
+            <tbody>
+              {results.usersReducer.users.filter(value => value._id !== userInfo._id).map(el => (
+                <tr key={el.email}>
+                  <td onClick={() => { userReports(el._id) }}>{el.name}</td>
+                  <td>{el.email}</td>
+                  <td>{el.role}</td>
+                  {userInfo.role === "admin" && <>
+                  <td>
+                    <Popconfirm
+                      title="Are you sure you want to delete this user?"
+                      placement="left"
+                      onConfirm={() => deleteUser(el)}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Icon type="delete" style={{ color: 'red', marginRight: "0.5rem" }} />
+                    </Popconfirm>
+                    <Icon type="edit" style={{ color: "#e6e600" }} onClick={() => editUser(el)} />
+                  </td>
+                  <td><input onClick={() => { selectToDelete(el._id) }} type="checkbox" /></td>
+                  </>}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+          <p>Click on a user to open reports</p>
+        </>
+      ) : <h5>There aren't any users</h5>}
       {registering && <Button onClick={goBack}>Go Back</Button>}
+      <div>
+        {addUser && <Button onClick={showRegistration} variant="outline-primary">Add User</Button>}
+      </div>
       <Modal
         show={results.usersReducer.modalShow}
         size="lg"
@@ -129,17 +169,17 @@ function Users() {
         </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form style={{ width: "100%", padding: "0 0.5rem" }}>
-            {Object.keys(userInput).filter(val => val !== "_id" && val !== "password").map(el => (
+          <Form onSubmit={saveChangedReport} style={{ width: "100%", padding: "0 0.5rem" }}>
+            {Object.keys(results.usersReducer.user).filter(val => val !== "_id").map(el => (
               <Form.Group key={el}>
                 <Form.Label>
                   {el} :
                 </Form.Label>
-                <Form.Control onChange={onChange} defaultValue={userInput[el]} type={el === "email" ? "email" : "text"} name={el} />
+                <Form.Control onChange={onChange} defaultValue={results.usersReducer.user[el]} type={el === "email" ? "email" : "text"} name={el} />
               </Form.Group>
             ))}
             <div style={{ textAlign: "right" }}>
-              <Button style={{ marginRight: "0.5rem" }} className="btn btn-success" onClick={saveReportChanges}>Save</Button>
+              <Button style={{ marginRight: "0.5rem" }} className="btn btn-success" type="submit">Save</Button>
               <Button className="btn btn-danger" onClick={() => dispatch({ type: "CLOSE_MODAL" })}>Cancel</Button>
             </div>
           </Form>
@@ -160,37 +200,38 @@ function Users() {
         </Modal.Header>
         <Modal.Body>
           <div>
-            <p>Name: {results.reportsReducer.overview['name']}</p>
-            <p>Email: {results.reportsReducer.overview['email']}</p>
+            <p>Name: {results.ReportsOverviewReducer.overview['name']}</p>
+            <p>Email: {results.ReportsOverviewReducer.overview['email']}</p>
           </div>
-          {results.reportsReducer.overview.reports && results.reportsReducer.overview.reports.length > 0 ? <>
+          {results.ReportsOverviewReducer.overview.reports && results.ReportsOverviewReducer.overview.reports.length > 0 ? <>
             <h2>Reports</h2>
-            <p style={margins}>Click on the status in order to approve or to deny report</p>
             <Table responsive>
               <thead>
                 <tr>
-                  {Object.keys(results.reportsReducer.overview.reports[0]).filter(el => el !== "id").map(el => (
+                  {Object.keys(results.ReportsOverviewReducer.overview.reports[0]).filter(el => el !== "id").map(el => (
                     <th key={el}>{el}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {results.reportsReducer.overview.reports.map(el => (
+                {results.ReportsOverviewReducer.overview.reports.map(el => (
                   <tr key={el.name}>
                     <td>{el.name}</td>
                     <td>{el.description}</td>
                     <td>{el.estimation}</td>
                     <td>{el.spent}</td>
-                    <Popconfirm
-                      title="Approve this report?"
-                      placement="left"
-                      onConfirm={() => approveReport(el, results.reportsReducer.reports, results.reportsReducer.overview._id)}
-                      onCancel={() => denyReport(el, results.reportsReducer.reports, results.reportsReducer.overview._id)}
-                      okText="Approve"
-                      cancelText="Deny"
-                    >
-                      <td><a href="/#">{el.status}</a></td>
-                    </Popconfirm>
+                    <td>
+                      <Popconfirm
+                        title="Approve or deny?"
+                        placement="left"
+                        onConfirm={() => { approveReport(el, results.ReportsOverviewReducer.overview._id) }}
+                        onCancel={() => { denyReport(el, results.ReportsOverviewReducer.overview._id) }}
+                        okText="Approve"
+                        cancelText="Deny"
+                      >
+                        <a href="/">{el.status}</a>
+                      </Popconfirm>
+                    </td>
                   </tr>
                 ))}
               </tbody>

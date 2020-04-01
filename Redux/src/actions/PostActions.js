@@ -2,7 +2,6 @@ import { SUCCESSFULY_REGISTERED, I_AM_A_TEAPOT, LOGIN_SUCCESS, LOGIN_ERROR } fro
 import axios from "axios";
 import { message } from 'antd';
 import setAuthToken from '../components/utils/setAuthorizationToken';
-import jwt from 'jwt-decode';
 
 export const addUser = postData => dispatch => {
   axios
@@ -26,6 +25,9 @@ export const addUser = postData => dispatch => {
           payload: error
         })
       }
+      if (error.response.status === 422) {
+        message.error(error.response.data, 7);
+      }
     })
 }
 
@@ -38,8 +40,6 @@ export const login = userInput => dispatch => {
       dispatch({
         type: LOGIN_SUCCESS,
       })
-      console.log('res', res);
-      console.log('jwt decoded', jwt(res.data));
       localStorage.setItem("jwt", res.data)
       setAuthToken(res.data);
       window.location.pathname = '/panel';

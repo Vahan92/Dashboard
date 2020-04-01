@@ -15,7 +15,6 @@ export class registerUser extends Component {
 
   submit = e => {
     e.preventDefault();
-    console.log(this.state);
     const userInfo = {
       email: this.state.email,
       password: this.state.password,
@@ -23,12 +22,10 @@ export class registerUser extends Component {
       name: this.state.name
     }
     this.props.addUser(userInfo);
-    console.log(`this.props ---- `, this.props)
   }
 
   onChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
-    console.log(this.state)
   }
 
   setRole = (el) => {
@@ -49,12 +46,12 @@ export class registerUser extends Component {
         <Form onSubmit={this.submit}>
           <Form.Group controlId="formBasicName">
             <Form.Label>Full Name</Form.Label>
-            <Form.Control onChange={this.onChange} type="text" name="name" placeholder="Enter name" />
+            <Form.Control required={true} onChange={this.onChange} type="text" name="name" placeholder="Enter name" />
           </Form.Group>
 
           <Form.Group controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
-            <Form.Control onChange={this.onChange} type="email" name="email" placeholder="Enter email" />
+            <Form.Control required={true} onChange={this.onChange} type="email" name="email" placeholder="Enter email" />
             <Form.Text className="text-muted">
               We'll never share your email with anyone else.
             </Form.Text>
@@ -62,7 +59,7 @@ export class registerUser extends Component {
 
           <Form.Group controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>
-            <Form.Control onChange={this.onChange} type="password" name="password" placeholder="Password" />
+            <Form.Control required={true} onChange={this.onChange} type="password" name="password" placeholder="Password" />
           </Form.Group>
           <div style={{ textAlign: "center" }}>
             <p>register as:</p>

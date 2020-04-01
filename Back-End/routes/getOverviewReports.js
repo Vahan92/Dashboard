@@ -4,7 +4,6 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/:_id', async (req, res) => {
-  console.log(`(req.params ----- `, req.params);
   const usersProjection = {
     password: false,
     role: false,
@@ -12,7 +11,7 @@ router.get('/:_id', async (req, res) => {
   };
   let user = await User.findById(req.params._id, usersProjection);
   if (!user) {
-      return res.status(404).send('There is no such a user');
+    return res.status(404).send('There is no such a user');
   }
   return res.status(200).send(user);
 });

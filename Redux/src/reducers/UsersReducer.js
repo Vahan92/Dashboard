@@ -16,14 +16,12 @@ export default function(state = initialState, action) {
         loading: false
       };
     case EDIT_USER:
-      // console.log(`action.payload `, action.payload);
       return {
         ...state,
-        // user: action.payload,
+        user: action.payload,
         modalShow: true
       };
       case CLOSE_MODAL:
-      // console.log(`action.payload `, action.payload);
       return {
         ...state,
         modalShow: false
